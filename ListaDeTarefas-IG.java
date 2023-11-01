@@ -1,6 +1,10 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class ListaDeTarefas {
     private DefaultListModel<String> listModel;
@@ -14,17 +18,29 @@ public class ListaDeTarefas {
         listModel = new DefaultListModel<>();
         listaTarefas = new JList<>(listModel);
 
+        // Carregar tarefas do arquivo
+        try (BufferedReader br = new BufferedReader(new FileReader("Tarefas.txt"))) {
+            String tarefa;
+            while ((tarefa = br.readLine()) != null) {
+                listModel.addElement(tarefa);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         JTextField tarefaField = new JTextField(10);
-        JButton addButton = new JButton("Adicionar");
-        addButton.addActionListener(new ActionListener() {
+        JButton incluirButton = new JButton("Incluir");
+        incluirButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 listModel.addElement(tarefaField.getText());
                 tarefaField.setText("");
             }
         });
 
-        JButton removeButton = new JButton("Remover");
-        removeButton.addActionListener(new ActionListener() {
+        JButton removerButton = new JButton("Remover");
+        removerButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 int selectedIndex = listaTarefas.getSelectedIndex();
                 if (selectedIndex != -1) {
@@ -34,12 +50,13 @@ public class ListaDeTarefas {
         });
 
         JPanel panel = new JPanel();
+        panel.setLayout(new FlowLayout());
         panel.add(tarefaField);
-        panel.add(addButton);
-        panel.add(removeButton);
+        panel.add(incluirButton);
+        panel.add(removerButton);
 
+        frame.getContentPane().add(BorderLayout.NORTH, panel);
         frame.getContentPane().add(BorderLayout.CENTER, new JScrollPane(listaTarefas));
-        frame.getContentPane().add(BorderLayout.SOUTH, panel);
 
         frame.setVisible(true);
     }
